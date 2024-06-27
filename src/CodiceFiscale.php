@@ -38,7 +38,8 @@ class CodiceFiscale
     private $tabReplacementOmocodia = null;
 
     private $tabDecodeMonths = null;
-    private $needsValidation = true;
+    
+    public $needsValidation = true;
 
     private $checks = [
         CheckForEmptyCode::class,
