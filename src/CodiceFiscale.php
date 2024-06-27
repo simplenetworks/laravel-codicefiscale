@@ -38,6 +38,7 @@ class CodiceFiscale
     private $tabReplacementOmocodia = null;
 
     private $tabDecodeMonths = null;
+    private $needsValidation = true;
 
     private $checks = [
         CheckForEmptyCode::class,
@@ -155,14 +156,16 @@ class CodiceFiscale
         $this->year = null;
         $this->error = null;
 
-        foreach ($this->checks as $check) {
-            (new $check())->check($cf);
+        if ($this->needsValidation) {
+            foreach ($this->checks as $check) {
+                (new $check())->check($cf);
+            }
         }
 
         $cfArray = str_split($cf);
 
         for ($i = 0; $i < count($this->tabReplacementOmocodia); $i++) {
-            if (! is_numeric($cfArray[$this->tabReplacementOmocodia[$i]])) {
+            if (!is_numeric($cfArray[$this->tabReplacementOmocodia[$i]])) {
                 $cfArray[$this->tabReplacementOmocodia[$i]] =
                     $this->tabDecodeOmocodia[$cfArray[$this->tabReplacementOmocodia[$i]]];
             }
@@ -184,7 +187,7 @@ class CodiceFiscale
         if ($this->gender === $this->config->getFemaleLabel()) {
             $this->day = $this->day - 40;
             if (strlen($this->day) === 1) {
-                $this->day = '0'.$this->day;
+                $this->day = '0' . $this->day;
             }
         }
 
@@ -217,7 +220,7 @@ class CodiceFiscale
             return;
         }
 
-        if (! array_key_exists($this->getBirthPlace(), $this->cityDecoder->getList())) {
+        if (!array_key_exists($this->getBirthPlace(), $this->cityDecoder->getList())) {
             throw new CodiceFiscaleValidationException(
                 'Invalid codice fiscale',
                 CodiceFiscaleValidationException::MISSING_CITY_CODE
@@ -230,7 +233,7 @@ class CodiceFiscale
     public function getBirthdate(): Carbon
     {
         try {
-            return Carbon::parse($this->getYear().'-'.$this->getMonth().'-'.$this->getDay());
+            return Carbon::parse($this->getYear() . '-' . $this->getMonth() . '-' . $this->getDay());
         } catch (\Exception $exception) {
             throw new CodiceFiscaleValidationException('Parsed date is not valid');
         }
@@ -240,10 +243,10 @@ class CodiceFiscale
     {
         $current_year = Carbon::today()->year;
         if (2000 + $this->year < $current_year) {
-            return '20'.$this->year;
+            return '20' . $this->year;
         }
 
-        return '19'.$this->year;
+        return '19' . $this->year;
     }
 
     public function getMonth()
