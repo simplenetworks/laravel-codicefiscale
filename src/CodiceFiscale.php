@@ -47,6 +47,8 @@ class CodiceFiscale
         CheckForWrongCode::class,
     ];
 
+    public $needsValidation = true;
+
     public function __construct(CityDecoderInterface $cityDecoder = null, CodiceFiscaleConfig $config = null)
     {
         $this->config = $config ?? resolve(CodiceFiscaleConfig::class);
@@ -155,8 +157,10 @@ class CodiceFiscale
         $this->year = null;
         $this->error = null;
 
-        foreach ($this->checks as $check) {
-            (new $check())->check($cf);
+        if($this->needsValidation) {
+            foreach ($this->checks as $check) {
+                (new $check())->check($cf);
+            }
         }
 
         $cfArray = str_split($cf);
